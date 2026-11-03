@@ -30,7 +30,7 @@ class CalculatorModel {
     }
     private fun divide(leftNumber: BigDecimal,rightNumber: BigDecimal){
         if (rightNumber.compareTo(BigDecimal.ZERO)==0){
-            trow DivisionByZeroException()
+            throw DivisionByZeroException()
         }
 
         val division = leftNumber.divide(rightNumber, mc)
