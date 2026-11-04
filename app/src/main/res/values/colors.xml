@@ -7,6 +7,6 @@
 
     <color name="button_text_light">#FFFFFFFF</color>
     <color name="button_text_dark">#FF000000</color>
-
-    <color name="history_secondary_text">#FF8E8E93</color>
+    <color name="display_text">#FFFFFFFF</color>
+    <color name="secondary_text">#FF8E8E93</color>
 </resources>

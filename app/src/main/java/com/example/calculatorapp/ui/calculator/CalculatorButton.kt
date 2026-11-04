@@ -33,7 +33,7 @@ fun CalculatorButton(
         Text(
             text = text,
             color = textColor,
-            fontSize = 15.sp
+            fontSize = 30.sp
         )
     }
 }
