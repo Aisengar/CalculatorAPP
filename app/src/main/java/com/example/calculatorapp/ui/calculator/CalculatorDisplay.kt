@@ -24,25 +24,19 @@ fun CalculatorDisplay(
     val error = uiState.error
     val mainText = if (error != null) errorMessage(error) else uiState.displayedNumber
 
-    val previousNumber = uiState.previousNumber
-    val pendingOperator = uiState.pendingOperator
-    val expressionText = if (previousNumber != null && pendingOperator != null) {
-        "$previousNumber ${operatorSymbol(pendingOperator)} ${uiState.displayedNumber}"
-    } else {
-        ""
-    }
-
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.End
     ) {
+        // Texto superior: Muestra la expresión binaria (ej. "3 + 6 =")
         Text(
-            text = expressionText,
+            text = uiState.expression,
             color = colorResource(R.color.secondary_text),
             fontSize = 24.sp,
             textAlign = TextAlign.End,
             maxLines = 1
         )
+        // Texto inferior: Muestra el número actual / resultado (ej. "9")
         Text(
             text = mainText,
             color = colorResource(R.color.display_text),

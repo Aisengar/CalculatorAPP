@@ -24,65 +24,94 @@ class CalculatorViewModel: ViewModel() {
     private var repeatOperator: CalculatorOperator?= null
     private var repeatRightNumber: String? = null
 
-    fun onDigitClick(digit: Int){
+    fun onDigitClick(digit: Int) {
         val state = currentStateClearingError()
         val digitText = digit.toString()
 
-        val newNumber = when {
+        val newEnteredNumber = when {
             isNextDigit -> digitText
-            state.displayedNumber =="0" -> digitText
-            countDigits(state.displayedNumber) >=  MAX_DIGITS -> state.displayedNumber
+            state.displayedNumber == "0" -> digitText
+            countDigits(state.displayedNumber) >= MAX_DIGITS -> state.displayedNumber
             else -> state.displayedNumber + digitText
         }
 
         isNextDigit = false
-        _uiState.value =  state.copy(displayedNumber = newNumber)
-    }
 
-    fun onDecimalClick(){
-        val state = currentStateClearingError()
-
-        if(!isNextDigit && state.displayedNumber.contains(".")) return
-
-        val newNumber = if (isNextDigit) "0." else state.displayedNumber + "."
-
-        isNextDigit = false
-        _uiState.value = state.copy(displayedNumber = newNumber)
-    }
-
-
-    fun onOperatorClick(operator: CalculatorOperator){
-        val state = currentStateClearingError()
-        val previousNumber =state.previousNumber
+        val previousNumber = state.previousNumber
         val pendingOperator = state.pendingOperator
-        val isReplacingOperator = pendingOperator != null && isNextDigit
-        //caso de operacion 1 "+", el operador antes del segundo numero reemplaza operador de manera dinamica
-        if(isReplacingOperator){
-            _uiState.value = state.copy(pendingOperator = operator)
-            return
-        }
 
-        if (previousNumber != null && pendingOperator != null){
-            val result = calculateOrShowError(previousNumber, pendingOperator, state.displayedNumber) ?: return
-            val resultText = result.toPlainString()
+        if (previousNumber != null && pendingOperator != null) {
+            // 1. La expresión superior muestra "3 + 5"
+            val updatedExpression = "$previousNumber ${symbolFor(pendingOperator)} $newEnteredNumber"
+            // 2. El display inferior calcula y muestra "8"
+            val liveResult = calculatePreview(previousNumber, pendingOperator, newEnteredNumber)
 
             _uiState.value = state.copy(
-                displayedNumber = resultText,
-                previousNumber = resultText,
-                pendingOperator = operator,
-                history = addToHistory(previousNumber, pendingOperator, state.displayedNumber, result)
+                displayedNumber = liveResult,
+                expression = updatedExpression
             )
         } else {
             _uiState.value = state.copy(
-                previousNumber = state.displayedNumber,
-                pendingOperator = operator
+                displayedNumber = newEnteredNumber
             )
         }
+    }
+
+    fun onDecimalClick() {
+        val state = currentStateClearingError()
+
+        if (!isNextDigit && state.displayedNumber.contains(".")) return
+
+        val newEnteredNumber = if (isNextDigit) "0." else state.displayedNumber + "."
+        isNextDigit = false
+
+        val previousNumber = state.previousNumber
+        val pendingOperator = state.pendingOperator
+
+        if (previousNumber != null && pendingOperator != null) {
+            val updatedExpression = "$previousNumber ${symbolFor(pendingOperator)} $newEnteredNumber"
+            val liveResult = calculatePreview(previousNumber, pendingOperator, newEnteredNumber)
+
+            _uiState.value = state.copy(
+                displayedNumber = liveResult,
+                expression = updatedExpression
+            )
+        } else {
+            _uiState.value = state.copy(
+                displayedNumber = newEnteredNumber
+            )
+        }
+    }
+
+
+    fun onOperatorClick(operator: CalculatorOperator) {
+        val state = currentStateClearingError()
+        val previousNumber = state.previousNumber
+        val pendingOperator = state.pendingOperator
+        val isReplacingOperator = pendingOperator != null && isNextDigit
+
+        if (isReplacingOperator) {
+            val newExpression = "$previousNumber ${symbolFor(operator)}"
+            _uiState.value = state.copy(
+                pendingOperator = operator,
+                expression = newExpression
+            )
+            return
+        }
+
+        // El resultText es el acumulado anterior
+        val currentBaseNumber = state.displayedNumber
+        val newExpression = "$currentBaseNumber ${symbolFor(operator)}"
+
+        _uiState.value = state.copy(
+            previousNumber = currentBaseNumber,
+            pendingOperator = operator,
+            expression = newExpression
+        )
+
         repeatOperator = null
-        repeatOperator = null
+        repeatRightNumber = null
         isNextDigit = true
-
-
     }
 
     fun onEqualsClick(){
@@ -130,11 +159,13 @@ class CalculatorViewModel: ViewModel() {
 
         _uiState.value = state.copy(
             displayedNumber = result.toPlainString(),
+            expression = "$left ${symbolFor(operator)} $right =",
             previousNumber = null,
             pendingOperator = null,
             history = addToHistory(left, operator, right, result)
         )
     }
+
     private fun showError(error: CalculatorError){
         resetInternalMemory()
         _uiState.value = CalculatorUiState(error = error, history =  _uiState.value.history)
@@ -168,6 +199,26 @@ class CalculatorViewModel: ViewModel() {
         isNextDigit = false
         repeatOperator = null
         repeatRightNumber = null
+    }
+
+    private fun symbolFor(operator: CalculatorOperator): String {
+        return when (operator) {
+            CalculatorOperator.ADD -> "+"
+            CalculatorOperator.SUBTRACT -> "-"
+            CalculatorOperator.MULTIPLY -> "×"
+            CalculatorOperator.DIVIDE -> "÷"
+        }
+    }
+
+    private fun calculatePreview(leftText: String, operator: CalculatorOperator, rightText: String): String {
+        val left = BigDecimal(leftText)
+        val right = BigDecimal(rightText)
+        return try {
+            calculatorModel.calculate(left, operator, right).toPlainString()
+        } catch (e: Exception) {
+            // En caso de división por cero parcial, se mantiene el número actual
+            rightText
+        }
     }
 
     private fun countDigits(number: String): Int =
