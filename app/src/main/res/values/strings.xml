@@ -1,3 +1,20 @@
 <resources>
-    <string name="app_name">CalculatorApp</string>
+    <string name="app_name">Calculator</string>
+
+    <string name="button_clear">AC</string>
+    <string name="button_change_sign">+/-</string>
+    <string name="button_percent">%</string>
+    <string name="button_decimal">.</string>
+    <string name="button_equals">=</string>
+    <string name="button_add">+</string>
+    <string name="button_subtract">−</string>
+    <string name="button_multiply">×</string>
+    <string name="button_divide">÷</string>
+
+    <string name="error_division_by_zero">No se puede dividir entre cero</string>
+
+    <string name="history_title">Historial</string>
+    <string name="history_empty">Todavía no hay operaciones</string>
+    <string name="history_open_description">Abrir historial</string>
+    <string name="history_back_description">Volver a la calculadora</string>
 </resources>
