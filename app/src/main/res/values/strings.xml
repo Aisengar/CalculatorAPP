@@ -11,7 +11,7 @@
     <string name="button_multiply">×</string>
     <string name="button_divide">÷</string>
 
-    <string name="error_division_by_zero">No se puede dividir entre cero</string>
+    <string name="error_division_by_zero">Error: Division entre cero</string>
 
     <string name="history_title">Historial</string>
     <string name="history_empty">Todavía no hay operaciones</string>

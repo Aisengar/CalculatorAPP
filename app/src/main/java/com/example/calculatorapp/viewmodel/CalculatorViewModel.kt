@@ -31,7 +31,7 @@ class CalculatorViewModel: ViewModel() {
         val newEnteredNumber = when {
             isNextDigit -> digitText
             state.displayedNumber == "0" -> digitText
-            countDigits(state.displayedNumber) >= MAX_DIGITS -> state.displayedNumber
+            countDigits(state.displayedNumber) >= MAX_DIGITS -> state.currentInput
             else -> state.displayedNumber + digitText
         }
 
@@ -41,18 +41,20 @@ class CalculatorViewModel: ViewModel() {
         val pendingOperator = state.pendingOperator
 
         if (previousNumber != null && pendingOperator != null) {
-            // 1. La expresión superior muestra "3 + 5"
+            //La expresión superior muestra "3 + 5"
             val updatedExpression = "$previousNumber ${symbolFor(pendingOperator)} $newEnteredNumber"
-            // 2. El display inferior calcula y muestra "8"
+            //El display inferior calcula y muestra "8"
             val liveResult = calculatePreview(previousNumber, pendingOperator, newEnteredNumber)
 
             _uiState.value = state.copy(
                 displayedNumber = liveResult,
-                expression = updatedExpression
+                expression = updatedExpression,
+                currentInput = newEnteredNumber
             )
         } else {
             _uiState.value = state.copy(
-                displayedNumber = newEnteredNumber
+                displayedNumber = newEnteredNumber,
+                currentInput = newEnteredNumber
             )
         }
     }
@@ -74,11 +76,13 @@ class CalculatorViewModel: ViewModel() {
 
             _uiState.value = state.copy(
                 displayedNumber = liveResult,
-                expression = updatedExpression
+                expression = updatedExpression,
+                currentInput = newEnteredNumber
             )
         } else {
             _uiState.value = state.copy(
-                displayedNumber = newEnteredNumber
+                displayedNumber = newEnteredNumber,
+                currentInput = newEnteredNumber
             )
         }
     }
@@ -100,13 +104,19 @@ class CalculatorViewModel: ViewModel() {
         }
 
         // El resultText es el acumulado anterior
-        val currentBaseNumber = state.displayedNumber
+        val currentBaseNumber = if (previousNumber != null && pendingOperator != null) {
+            val result = calculateOrShowError(previousNumber, pendingOperator, state.currentInput) ?: return
+            result.toPlainString()
+        } else {
+            state.displayedNumber
+        }
         val newExpression = "$currentBaseNumber ${symbolFor(operator)}"
 
         _uiState.value = state.copy(
             previousNumber = currentBaseNumber,
             pendingOperator = operator,
-            expression = newExpression
+            expression = newExpression,
+            currentInput = currentBaseNumber
         )
 
         repeatOperator = null
@@ -122,22 +132,27 @@ class CalculatorViewModel: ViewModel() {
         val savedOperand = repeatRightNumber
 
         if (previousNumber != null && pendingOperator != null) {
-            finishOperation(state, previousNumber, pendingOperator, state.displayedNumber)
+            finishOperation(state, previousNumber, pendingOperator, state.currentInput)
         } else if (savedOperator != null && savedOperand != null) {
             finishOperation(state, state.displayedNumber, savedOperator, savedOperand)
         }
     }
     fun onPercentClick() {
         val state = currentStateClearingError()
-        val percentage = calculatorModel.toPercentage(BigDecimal(state.displayedNumber))
+        val percentage = calculatorModel.toPercentage(BigDecimal(state.currentInput))
 
-        _uiState.value = state.copy(displayedNumber = percentage.toPlainString() )
+        _uiState.value = state.copy(
+            displayedNumber = percentage.toPlainString(),
+            currentInput = percentage.toPlainString()
+            )
     }
 
     fun onChangeClick(){
         val state = currentStateClearingError()
-        val negate = calculatorModel.changeSigne(BigDecimal(state.displayedNumber))
-        _uiState.value = state.copy( displayedNumber = negate.toPlainString())
+        val negate = calculatorModel.changeSigne(BigDecimal(state.currentInput))
+        _uiState.value = state.copy(
+            displayedNumber = negate.toPlainString(),
+            currentInput = negate.toPlainString())
     }
 
     fun onClearClick() {
@@ -162,7 +177,8 @@ class CalculatorViewModel: ViewModel() {
             expression = "$left ${symbolFor(operator)} $right =",
             previousNumber = null,
             pendingOperator = null,
-            history = addToHistory(left, operator, right, result)
+            history = addToHistory(left, operator, right, result),
+            currentInput = result.toPlainString()
         )
     }
 
@@ -215,8 +231,8 @@ class CalculatorViewModel: ViewModel() {
         val right = BigDecimal(rightText)
         return try {
             calculatorModel.calculate(left, operator, right).toPlainString()
-        } catch (e: Exception) {
-            rightText
+        } catch (e: DivisionByZeroException) {
+            showError(CalculatorError.DIVISION_BY_ZERO).toString()
         }
     }
 

@@ -6,7 +6,7 @@ import java.math.RoundingMode
 
 class CalculatorModel {
     private val oneHundred = BigDecimal(100)
-    private val mc = MathContext(6, RoundingMode.HALF_UP)
+    private val mc = MathContext(10, RoundingMode.HALF_UP)
     fun calculate(
         leftNumber: BigDecimal,
         operator: CalculatorOperator,
@@ -16,7 +16,7 @@ class CalculatorModel {
             CalculatorOperator.ADD -> leftNumber.add(rightNumber)
             CalculatorOperator.SUBTRACT -> leftNumber.subtract(rightNumber)
             CalculatorOperator.MULTIPLY -> leftNumber.multiply(rightNumber)
-            CalculatorOperator.DIVIDE -> leftNumber.divide(rightNumber)
+            CalculatorOperator.DIVIDE -> divide(leftNumber,rightNumber)
         }
         return result.stripTrailingZeros()
     }
@@ -28,11 +28,11 @@ class CalculatorModel {
     fun changeSigne(value: BigDecimal): BigDecimal{
         return value.negate()
     }
-    private fun divide(leftNumber: BigDecimal,rightNumber: BigDecimal){
+    private fun divide(leftNumber: BigDecimal,rightNumber: BigDecimal): BigDecimal{
         if (rightNumber.compareTo(BigDecimal.ZERO)==0){
             throw DivisionByZeroException()
         }
-
         val division = leftNumber.divide(rightNumber, mc)
+        return division
     }
 }
