@@ -23,7 +23,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.calculatorapp.R
+import com.example.calculatorapp.model.CalculatorOperator
 import com.example.calculatorapp.model.HistoryEntry
+import com.example.calculatorapp.ui.operatorSymbol
 import com.example.calculatorapp.viewmodel.CalculatorViewModel
 
 @Composable
@@ -86,14 +88,13 @@ private fun HistoryList(entries: List<HistoryEntry>) {
         }
     }
 }
-val CVM = CalculatorViewModel()
 @Composable
 private fun HistoryItem(entry: HistoryEntry) {
     Text(
         text = stringResource(
             R.string.history_entry,
             entry.leftNumber.toPlainString(),
-            CVM.symbolFor(entry.operator),
+            operatorSymbol(entry.operator),
             entry.rightNumber.toPlainString(),
             entry.result.toPlainString()
         ),

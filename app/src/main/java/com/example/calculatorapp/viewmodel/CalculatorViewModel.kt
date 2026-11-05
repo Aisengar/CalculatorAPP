@@ -116,7 +116,8 @@ class CalculatorViewModel: ViewModel() {
             previousNumber = currentBaseNumber,
             pendingOperator = operator,
             expression = newExpression,
-            currentInput = currentBaseNumber
+            currentInput = currentBaseNumber,
+            displayedNumber = currentBaseNumber
         )
 
         repeatOperator = null
@@ -232,7 +233,7 @@ class CalculatorViewModel: ViewModel() {
         return try {
             calculatorModel.calculate(left, operator, right).toPlainString()
         } catch (e: DivisionByZeroException) {
-            showError(CalculatorError.DIVISION_BY_ZERO).toString()
+            rightText
         }
     }
 

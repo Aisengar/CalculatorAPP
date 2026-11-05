@@ -10,5 +10,6 @@ data class CalculatorUiState(
     val pendingOperator: CalculatorOperator? = null,
     val error: CalculatorError? = null,
     val history: List<HistoryEntry> = emptyList(),
-    val currentInput:String = ""
+    val currentInput:String = "",
+    val lastOperation: String? = null
 )
