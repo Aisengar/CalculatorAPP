@@ -30,9 +30,9 @@ class CalculatorViewModel: ViewModel() {
 
         val newEnteredNumber = when {
             isNextDigit -> digitText
-            state.displayedNumber == "0" -> digitText
-            countDigits(state.displayedNumber) >= MAX_DIGITS -> state.currentInput
-            else -> state.displayedNumber + digitText
+            state.currentInput == "0" -> digitText
+            countDigits(state.currentInput) >= MAX_DIGITS -> state.currentInput
+            else -> state.currentInput + digitText
         }
 
         isNextDigit = false
@@ -62,9 +62,9 @@ class CalculatorViewModel: ViewModel() {
     fun onDecimalClick() {
         val state = currentStateClearingError()
 
-        if (!isNextDigit && state.displayedNumber.contains(".")) return
+        if (!isNextDigit && state.currentInput.contains(".")) return
 
-        val newEnteredNumber = if (isNextDigit) "0." else state.displayedNumber + "."
+        val newEnteredNumber = if (isNextDigit) "0." else state.currentInput + "."
         isNextDigit = false
 
         val previousNumber = state.previousNumber
