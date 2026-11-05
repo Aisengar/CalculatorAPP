@@ -201,7 +201,7 @@ class CalculatorViewModel: ViewModel() {
         repeatRightNumber = null
     }
 
-    private fun symbolFor(operator: CalculatorOperator): String {
+    fun symbolFor(operator: CalculatorOperator): String {
         return when (operator) {
             CalculatorOperator.ADD -> "+"
             CalculatorOperator.SUBTRACT -> "-"
@@ -216,7 +216,6 @@ class CalculatorViewModel: ViewModel() {
         return try {
             calculatorModel.calculate(left, operator, right).toPlainString()
         } catch (e: Exception) {
-            // En caso de división por cero parcial, se mantiene el número actual
             rightText
         }
     }

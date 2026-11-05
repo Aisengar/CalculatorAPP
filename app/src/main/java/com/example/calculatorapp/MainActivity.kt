@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import com.example.calculatorapp.ui.calculator.CalculatorScreen
+import com.example.calculatorapp.ui.navigation.AppNavigation
 import com.example.calculatorapp.ui.theme.CalculatorAppTheme
 import com.example.calculatorapp.viewmodel.CalculatorViewModel
 class MainActivity : ComponentActivity() {
@@ -15,10 +16,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             CalculatorAppTheme {
-                CalculatorScreen(
-                    viewModel = viewModel,
-                    onHistoryClick = {}
-                )
+                AppNavigation(viewModel)
             }
         }
     }
