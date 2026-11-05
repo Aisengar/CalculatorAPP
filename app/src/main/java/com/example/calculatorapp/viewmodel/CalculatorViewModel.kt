@@ -102,10 +102,12 @@ class CalculatorViewModel: ViewModel() {
             )
             return
         }
-
+        var updateHistory = state.history
         // El resultText es el acumulado anterior
         val currentBaseNumber = if (previousNumber != null && pendingOperator != null) {
             val result = calculateOrShowError(previousNumber, pendingOperator, state.currentInput) ?: return
+            val entry = HistoryEntry(BigDecimal(previousNumber) , pendingOperator, BigDecimal(state.currentInput), result)
+            updateHistory = addToHistory(entry)
             result.toPlainString()
         } else {
             state.displayedNumber
@@ -117,7 +119,8 @@ class CalculatorViewModel: ViewModel() {
             pendingOperator = operator,
             expression = newExpression,
             currentInput = currentBaseNumber,
-            displayedNumber = currentBaseNumber
+            displayedNumber = currentBaseNumber,
+            history = updateHistory
         )
 
         repeatOperator = null
@@ -173,13 +176,16 @@ class CalculatorViewModel: ViewModel() {
         repeatRightNumber = right
         isNextDigit = true
 
+        val entry = HistoryEntry(BigDecimal(left), operator, BigDecimal(right),result)
+
         _uiState.value = state.copy(
             displayedNumber = result.toPlainString(),
             expression = "$left ${symbolFor(operator)} $right =",
             previousNumber = null,
             pendingOperator = null,
-            history = addToHistory(left, operator, right, result),
-            currentInput = result.toPlainString()
+            history = addToHistory(entry),
+            currentInput = result.toPlainString(),
+            lastOperation = entry
         )
     }
 
@@ -188,9 +194,8 @@ class CalculatorViewModel: ViewModel() {
         _uiState.value = CalculatorUiState(error = error, history =  _uiState.value.history)
     }
 
-    private fun addToHistory(leftNumber: String, operator: CalculatorOperator, rightNumber: String, result: BigDecimal): List<HistoryEntry>{
-        val newEntry = HistoryEntry(BigDecimal(leftNumber), operator, BigDecimal(rightNumber), result)
-        return listOf(newEntry) + _uiState.value.history
+    private fun addToHistory(entry: HistoryEntry): List<HistoryEntry>{
+        return listOf(entry) + _uiState.value.history
     }
 
     private fun calculateOrShowError(leftNumber:String, operator: CalculatorOperator, rightNumber:String ): BigDecimal?{

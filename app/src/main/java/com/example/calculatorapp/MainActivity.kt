@@ -5,7 +5,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
-import com.example.calculatorapp.ui.calculator.CalculatorScreen
 import com.example.calculatorapp.ui.navigation.AppNavigation
 import com.example.calculatorapp.ui.theme.CalculatorAppTheme
 import com.example.calculatorapp.viewmodel.CalculatorViewModel
